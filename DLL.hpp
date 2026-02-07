@@ -57,6 +57,7 @@ class DLL {
         void resize(size_t count, const T& value);
         void swap(DLL& other ) noexcept;
         void insert(size_t pos, const T& value);
+        void erase(size_t pos);
         
         void merge(DLL& other);
         size_t remove(const T& value);
@@ -215,7 +216,7 @@ void DLL<T>::swap(DLL& other) noexcept {
 }
 
 template <typename T>
-void insert(size_t pos, const T& value) {
+void DLL<T>::nsert(size_t pos, const T& value) {
     if (pos == 0) this->push_front(std::move(value));
     else if (pos == size) this->push_back(std::move(value));
     else if (pos > size) throw std::logic_error("Position is not in range.");
@@ -228,6 +229,24 @@ void insert(size_t pos, const T& value) {
         tmp->prev->next = new Node(std::move(value), tmp, tmp->prev);
         tmp->prev = tmp->prev->next; 
         ++size;
+    }
+}
+
+template <typename T>
+void DLL<T>::erase(size_t pos) {
+    if (pos >= size) throw std::logic_error("Position is out of range.");
+    else if (pos == 0) this->pop_front();
+    else if (pos == size - 1) this->pop_back();
+    else {
+        auto* tmp = head;
+        while (pos) {
+            tmp = tmp->next;
+            --pos;
+        }
+        tmp->prev->next = tmp->next;
+        tmp->next->prev = tmp->prev;
+        delete tmp;
+        --size;
     }
 }
 
