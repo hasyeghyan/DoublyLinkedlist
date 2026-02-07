@@ -216,7 +216,7 @@ void DLL<T>::swap(DLL& other) noexcept {
 }
 
 template <typename T>
-void DLL<T>::nsert(size_t pos, const T& value) {
+void DLL<T>::insert(size_t pos, const T& value) {
     if (pos == 0) this->push_front(std::move(value));
     else if (pos == size) this->push_back(std::move(value));
     else if (pos > size) throw std::logic_error("Position is not in range.");
