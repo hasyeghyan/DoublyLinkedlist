@@ -13,6 +13,9 @@ class DLL {
             Node* prev;
 
             Node(T _val = T(), Node* n = nullptr, Node* p = nullptr) : val{_val}, next{n}, prev{p} {}
+            template <typename... Args>
+            Node(Node* n, Node* p, Args&&... args) 
+              : val{std::forward<Args>(args)...}, next{n}, prev{p} {}
         }; 
 
         Node* head;
@@ -58,6 +61,13 @@ class DLL {
         void swap(DLL& other ) noexcept;
         void insert(size_t pos, const T& value);
         void erase(size_t pos);
+        template <typename... Args>
+        void emplace_back(Args&&... args);
+        template <typename... Args>
+        void emplace_front(Args&&... args);
+        template <typename... Args>
+        void emplace(size_t pos, Args&&... args);
+
         
         void merge(DLL& other);
         size_t remove(const T& value);
@@ -249,6 +259,49 @@ void DLL<T>::erase(size_t pos) {
         --size;
     }
 }
+
+template <typename T>
+template <typename... Args>
+void DLL<T>::emplace_back(Args&&... args) {
+    ++size;
+    if (empty()) {
+        head = tail = new Node(nullptr, nullptr, std::forward<Args>(args)...);
+        return;
+    }
+    tail->next = new Node(nullptr, tail, std::forward<Args>(args)...); 
+    tail = tail->next;
+}
+
+template <typename T>
+template <typename... Args>
+void DLL<T>::emplace_front(Args&&... args) {
+    ++size;
+    if (empty()) {
+        head = tail = new Node(nullptr, nullptr, std::forward<Args>(args)...);
+        return;
+    }
+    head->prev = new Node(head, nullptr, std::forward<Args>(args)...);
+    head = head->prev;
+}
+
+template <typename T>
+template <typename... Args>
+void DLL<T>::emplace(size_t pos, Args&&... args) {
+    if (pos == 0) this->emplace_front(std::forward<Args>(args)...);
+    else if (pos == size) this->emplace_back(std::forward<Args>(args)...);
+    else if (pos > size) throw std::logic_error("Position is not in range.");
+    else {
+        auto* tmp = head;
+        while (pos) {
+            tmp = tmp->next;
+            --pos;
+        }
+        tmp->prev->next = new Node(tmp, tmp->prev, std::forward<Args>(args)...);
+        tmp->prev = tmp->prev->next; 
+        ++size;
+    }
+}
+
 
 template <typename T>
 DLL<T>::DLL(Node* h , Node* t) : head{h}, tail{t} {
